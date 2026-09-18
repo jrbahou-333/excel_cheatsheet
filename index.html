@@ -247,6 +247,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 .sbtn:disabled { opacity: .4; cursor: default; }
 #searchNav { display: flex; align-items: center; gap: 6px; }
 #searchNav[hidden] { display: none; }
+.search-where { font-size: .76rem; color: var(--brand-deep); margin: -6px 0 10px 4px; line-height: 1.35; }
+.search-where:empty { display: none; }
 .nav { list-style: none; margin: 0; padding: 0; }
 .nav > li { margin: 0; }
 .nav a {
@@ -257,10 +259,17 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 .nav a:hover { background: var(--surface-2); color: var(--ink); }
 .nav a.active { background: var(--brand-tint); color: var(--navy); font-weight: 700; }
 .nav a.active .n { color: var(--brand-deep); }
+.nav a .cnt {
+  margin-left: auto; font-size: .68rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: var(--hl-2); color: var(--hl-2-b); border-radius: 999px; padding: 1px 7px; line-height: 1.5; flex: none;
+}
+.nav a.active .cnt { background: var(--brand); color: #fff; }
 .nav .sub { list-style: none; margin: 0 0 4px; padding: 0 0 0 26px; display: none; }
 .nav .sub a { font-size: .82rem; padding: 4px 8px; font-weight: 500; color: var(--ink-3); }
 .nav .sub a.active { color: var(--brand-deep); background: transparent; font-weight: 700; }
 .nav > li.open .sub { display: block; }
+body.searching .nav > li.hit .sub { display: block; }
+body.searching .nav a:not(.dim) { cursor: pointer; }
 .sidebar .foot { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .78rem; color: var(--ink-3); line-height: 1.5; }
 
 .main { flex: 1; min-width: 0; padding: 32px 40px 80px; }
@@ -538,6 +547,24 @@ figcaption { font-size: .82rem; color: var(--ink-3); margin-top: 8px; }
 #toTop { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .2s; box-shadow: var(--shadow-lg); }
 #toTop.show { opacity: 1; pointer-events: auto; }
 
+/* Floating find bar — on phones the search box sits inside the nav drawer, which
+   closes on each jump, so stepping through matches needs controls on the page. */
+#findBar {
+  position: fixed; z-index: 46; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: none; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line-2);
+  background: var(--surface); box-shadow: var(--shadow-lg); font-size: .82rem; color: var(--ink-2);
+}
+#findBar[hidden] { display: none; }
+#findTerm { font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 45%; }
+#findCount { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#findBar .sbtn { width: 32px; height: 30px; font-size: .9rem; }
+@media (max-width: 860px) {
+  body.searching #findBar:not([hidden]) { display: flex; }
+  body.searching #toTop { display: none; }
+  body.nav-open #findBar { display: none !important; }
+}
+
 /* Search: dim what doesn't match, highlight what does */
 body.searching .dim { opacity: .32; filter: grayscale(.75); transition: opacity .15s ease; }
 body.searching .nav a.dim { opacity: .4; }
@@ -644,6 +671,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       </span>
       <span id="searchStatus" aria-live="polite"></span>
     </div>
+    <div class="search-where" id="searchWhere"></div>
     <ul class="nav">
       <li><a href="#top"><span class="n">0</span>Start here</a></li>
       <li><a href="#fundamentals"><span class="n">1</span>Formula fundamentals</a>
@@ -733,7 +761,8 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
         <div class="callout tip" style="margin-top:20px">
           <div class="t">How to use this handbook</div>
           <ul>
-            <li><b>Jump around.</b> Use the sidebar, or press <kbd>Ctrl</kbd>+<kbd>K</kbd> and type a function name (e.g. <code>xlookup</code>, <code>textjoin</code>). Every mention is highlighted and sections without a match are greyed out; press <kbd>Enter</kbd> to jump to the next one, <kbd>Shift</kbd>+<kbd>Enter</kbd> for the previous, <kbd>Esc</kbd> to clear.</li>
+            <li><b>Jump around.</b> Use the sidebar, or press <kbd>Ctrl</kbd>+<kbd>K</kbd> and type a function name (e.g. <code>xlookup</code>, <code>textjoin</code>).</li>
+            <li><b>Searching moves you through the guide.</b> Every mention is highlighted; <kbd>Enter</kbd> jumps to the next one, <kbd>Shift</kbd>+<kbd>Enter</kbd> the previous, <kbd>Esc</kbd> clears. The sidebar becomes a map of results — each section shows how many matches it holds, sections with none are greyed out, and clicking one takes you straight to its first match.</li>
             <li><b>Tags:</b> <span class="tag basic">Basic</span> everyone should know · <span class="tag m365">365</span> needs Microsoft 365 / Excel 2021+ · <span class="tag legacy">Legacy</span> still works, but there's a better modern option · <span class="tag adv">Advanced</span> power-user territory.</li>
             <li><b>Grids with a green formula bar are live.</b> Click any cell (or use arrow keys) to see its formula; the ranges it uses light up in matching colours.</li>
             <li><b>Copy buttons</b> on every formula block give you a version you can paste straight into Excel.</li>
@@ -1988,6 +2017,13 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
   </main>
 </div>
 <button id="toTop" class="btn primary" type="button" aria-label="Back to top">↑ Top</button>
+<div id="findBar" hidden role="search" aria-label="Search results">
+  <span id="findTerm"></span>
+  <span id="findCount"></span>
+  <button class="sbtn" id="findPrev" type="button" aria-label="Previous match">↑</button>
+  <button class="sbtn" id="findNext" type="button" aria-label="Next match">↓</button>
+  <button class="sbtn" id="findClose" type="button" aria-label="Clear search">✕</button>
+</div>
 
 <script>
 (function () {
@@ -2926,9 +2962,15 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
      Search, nav, scrollspy, theme, misc
      ===================================================================== */
   function initSearch() {
-    const box = $('#q'), wrap = $('.search'), status = $('#searchStatus'), navBar = $('#searchNav');
+    const box = $('#q'), wrap = $('.search'), status = $('#searchStatus'), navBar = $('#searchNav'), where = $('#searchWhere');
     const clearBtn = $('#qClear'), prevBtn = $('#qPrev'), nextBtn = $('#qNext');
+    const findBar = $('#findBar'), findTerm = $('#findTerm'), findCount = $('#findCount');
+    const findPrev = $('#findPrev'), findNext = $('#findNext'), findClose = $('#findClose');
     const content = $('.content');
+    const navTargets = $$('.nav a[href^="#"]').map(a => {
+      const t = $(a.getAttribute('href'));
+      return t && { a, t, li: a.closest('li'), isSec: t.classList.contains('chapter') || t.classList.contains('subsection') };
+    }).filter(Boolean);
     // Containers whose innerHTML is rewritten at runtime — marking inside them would be wiped out.
     const SKIP = '.xl, .stepper, .tool, #azIndex';
     let marks = [], cur = -1;
@@ -2989,21 +3031,51 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
         });
       });
       const hero = $('.hero'); if (hero) hero.classList.toggle('dim', !has(hero));
-      $$('.nav a[href^="#"]').forEach(a => {
-        const t = $(a.getAttribute('href'));
-        a.classList.toggle('dim', !!t && (t.classList.contains('chapter') || t.classList.contains('subsection')) && !has(t));
+      // The sidebar doubles as a results map: per-section counts, and chapters with
+      // hits expand so their subsections are reachable without leaving the search.
+      navTargets.forEach(({ a, t, li, isSec }) => {
+        if (!isSec) { a.classList.remove('dim'); count(a, 0); return; }
+        const n = t.querySelectorAll('.sr').length;
+        a.classList.toggle('dim', n === 0);
+        count(a, n);
+        if (t.classList.contains('chapter')) li.classList.toggle('hit', n > 0);
       });
     }
-    function setStatus() {
-      if (!marks.length) { status.textContent = 'No matches'; navBar.hidden = true; return; }
-      navBar.hidden = false;
-      status.textContent = `${cur + 1} of ${marks.length}`;
-      prevBtn.disabled = nextBtn.disabled = marks.length < 2;
+    function count(a, n) {
+      let el = a.querySelector('.cnt');
+      if (!n) { if (el) el.remove(); return; }
+      if (!el) { el = document.createElement('span'); el.className = 'cnt'; a.appendChild(el); }
+      el.textContent = n;
     }
-    function go(delta) {
+    function sectionOf(m) { return m.closest('.subsection') || m.closest('.chapter') || null; }
+    function sectionName(sec) {
+      if (!sec) return '';
+      const h = sec.querySelector('h3, h2');
+      if (!h) return '';
+      const c = h.cloneNode(true);
+      c.querySelectorAll('.tag, .cnt').forEach(x => x.remove());
+      return c.textContent.replace(/\s+/g, ' ').trim();
+    }
+    function setStatus() {
+      findTerm.textContent = box.value.trim();
+      if (!marks.length) {
+        status.textContent = 'No matches'; navBar.hidden = true; where.textContent = '';
+        findCount.textContent = 'no matches'; findBar.hidden = !box.value.trim();
+        findPrev.disabled = findNext.disabled = true;
+        return;
+      }
+      navBar.hidden = false; findBar.hidden = false;
+      status.textContent = `${cur + 1} of ${marks.length}`;
+      findCount.textContent = `${cur + 1} of ${marks.length}`;
+      prevBtn.disabled = nextBtn.disabled = findPrev.disabled = findNext.disabled = marks.length < 2;
+      const sec = cur >= 0 && marks[cur] ? sectionOf(marks[cur]) : null;
+      where.textContent = sec ? 'in ' + sectionName(sec) : '';
+      navTargets.forEach(({ a, t }) => a.classList.toggle('active', !!sec && t === sec));
+    }
+    function setCur(i) {
       if (!marks.length) return;
       if (cur >= 0 && marks[cur]) marks[cur].classList.remove('cur');
-      cur = (cur + delta + marks.length) % marks.length;
+      cur = (i + marks.length) % marks.length;
       const m = marks[cur];
       m.classList.add('cur');
       const d = m.closest('details'); if (d) d.open = true;
@@ -3012,6 +3084,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       closeNav();
       setStatus();
     }
+    const go = delta => setCur(cur + delta);
     function run(keepIndex) {
       const q = box.value.trim().toLowerCase();
       const prevIndex = cur;
@@ -3020,7 +3093,9 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       if (!q) {
         document.body.classList.remove('searching');
         $$('.dim').forEach(x => x.classList.remove('dim'));
-        status.textContent = ''; navBar.hidden = true;
+        $$('.nav li.hit').forEach(x => x.classList.remove('hit'));
+        navTargets.forEach(({ a }) => { count(a, 0); a.classList.remove('active'); });
+        status.textContent = ''; where.textContent = ''; navBar.hidden = true; findBar.hidden = true;
         return;
       }
       document.body.classList.add('searching');
@@ -3030,14 +3105,30 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       if (marks.length) { cur = keepIndex ? Math.min(prevIndex, marks.length - 1) : 0; if (cur < 0) cur = 0; marks[cur].classList.add('cur'); }
       setStatus();
     }
+    // While searching, a sidebar link jumps to the first match inside that section
+    // instead of just scrolling to its heading.
+    navTargets.forEach(({ a, t }) => a.addEventListener('click', e => {
+      if (!document.body.classList.contains('searching')) return;
+      const first = t.querySelector('.sr');
+      if (!first) return;
+      const i = marks.indexOf(first);
+      if (i < 0) return;
+      e.preventDefault();
+      setCur(i);
+    }));
     box.addEventListener('input', () => run(false));
     box.addEventListener('keydown', e => {
       if (e.key === 'Escape') { box.value = ''; run(false); box.blur(); }
       else if (e.key === 'Enter') { e.preventDefault(); go(e.shiftKey ? -1 : 1); }
     });
-    prevBtn.addEventListener('click', () => { go(-1); box.focus(); });
-    nextBtn.addEventListener('click', () => { go(1); box.focus(); });
-    clearBtn.addEventListener('click', () => { box.value = ''; run(false); box.focus(); });
+    // preventScroll matters: the box lives in the sticky sidebar, so a plain focus()
+    // would scroll the window back to the top and undo the jump we just made.
+    prevBtn.addEventListener('click', () => { go(-1); box.focus({ preventScroll: true }); });
+    nextBtn.addEventListener('click', () => { go(1); box.focus({ preventScroll: true }); });
+    clearBtn.addEventListener('click', () => { box.value = ''; run(false); box.focus({ preventScroll: true }); });
+    findPrev.addEventListener('click', () => go(-1));
+    findNext.addEventListener('click', () => go(1));
+    findClose.addEventListener('click', () => { box.value = ''; run(false); });
     document.addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openNav(); box.focus(); box.select(); }
       else if (e.key === 'F3' || (e.key === 'Escape' && document.body.classList.contains('searching') && document.activeElement !== box)) { e.preventDefault(); if (e.key === 'F3') go(e.shiftKey ? -1 : 1); else { box.value = ''; run(false); } }
@@ -3049,7 +3140,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
   function initNav() {
     $('#menuBtn').addEventListener('click', () => document.body.classList.toggle('nav-open'));
     $('.overlay').addEventListener('click', closeNav);
-    $$('.nav a').forEach(a => a.addEventListener('click', () => { closeNav(); if (document.body.classList.contains('searching')) { $('#q').value = ''; $('#q').dispatchEvent(new Event('input')); } }));
+    $$('.nav a').forEach(a => a.addEventListener('click', () => closeNav()));
     // scrollspy
     const links = $$('.nav a[href^="#"]');
     const targets = links.map(a => $(a.getAttribute('href'))).filter(Boolean);
