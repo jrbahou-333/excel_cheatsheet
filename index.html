@@ -230,12 +230,23 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
   border: 1px solid var(--line-2); background: var(--surface-2); color: var(--ink);
 }
 .search input:focus { border-color: var(--brand); background: var(--surface); }
+.search input::-webkit-search-cancel-button, .search input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
 .search .ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-3); pointer-events: none; }
 .search kbd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); }
 .search .clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--ink-3); cursor: pointer; font: inherit; display: none; padding: 2px 6px; }
 .search.has-q kbd { display: none; }
 .search.has-q .clear { display: inline; }
-.search-status { font-size: .8rem; color: var(--ink-3); margin: -6px 0 10px 4px; min-height: 1.2em; }
+.search-status { font-size: .8rem; color: var(--ink-3); margin: -6px 0 10px 4px; min-height: 1.2em; display: flex; align-items: center; gap: 6px; }
+.search-status .hint { font-size: .74rem; }
+.sbtn {
+  appearance: none; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2);
+  border-radius: 6px; width: 24px; height: 22px; line-height: 1; font-size: .8rem; cursor: pointer; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+}
+.sbtn:hover:not(:disabled) { border-color: var(--brand); color: var(--navy); background: var(--brand-tint); }
+.sbtn:disabled { opacity: .4; cursor: default; }
+#searchNav { display: flex; align-items: center; gap: 6px; }
+#searchNav[hidden] { display: none; }
 .nav { list-style: none; margin: 0; padding: 0; }
 .nav > li { margin: 0; }
 .nav a {
@@ -527,16 +538,24 @@ figcaption { font-size: .82rem; color: var(--ink-3); margin-top: 8px; }
 #toTop { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .2s; box-shadow: var(--shadow-lg); }
 #toTop.show { opacity: 1; pointer-events: auto; }
 
-/* Search-hidden state */
-body.searching .chapter { display: none; }
-body.searching .chapter.has-hit { display: block; }
-body.searching .chapter.has-hit > *:not(header):not(.subsection) { display: none; }
-body.searching .subsection { display: none; }
-body.searching .subsection.has-hit { display: block; }
-body.searching .subsection.has-hit > *:not(h3):not(.card) { display: none; }
-body.searching .card { display: none; }
-body.searching .card.hit { display: block; }
-body.searching .hero, body.searching .footer { display: none; }
+/* Search: dim what doesn't match, highlight what does */
+body.searching .dim { opacity: .32; filter: grayscale(.75); transition: opacity .15s ease; }
+body.searching .nav a.dim { opacity: .4; }
+mark.sr {
+  background: var(--hl-2); color: var(--ink); border-radius: 3px; padding: 0 1px;
+  box-shadow: 0 0 0 1px var(--hl-2-b); scroll-margin-top: calc(var(--header-h) + 24px);
+}
+mark.sr.cur { background: var(--brand); color: #fff; box-shadow: 0 0 0 2px var(--brand-light), 0 0 0 5px var(--brand-tint); }
+:root[data-theme="dark"] mark.sr.cur, :root:not([data-theme="light"]) mark.sr.cur { color: #06202c; }
+/* Card matched on its keyword list rather than visible text */
+h4.sr.kw {
+  background: var(--hl-2); border-radius: 5px; padding: 3px 8px; margin: -3px -8px 1px;
+  box-shadow: inset 0 0 0 1px var(--hl-2-b); scroll-margin-top: calc(var(--header-h) + 24px);
+}
+h4.sr.kw::after { content: "keyword match"; font-size: .62rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--hl-2-b); margin-left: auto; }
+h4.sr.kw.cur { background: var(--brand); color: #fff; box-shadow: inset 0 0 0 1px var(--brand-deep), 0 0 0 3px var(--brand-tint); }
+h4.sr.kw.cur::after { color: #fff; }
+h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .35); color: #fff; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
@@ -618,7 +637,13 @@ body.searching .hero, body.searching .footer { display: none; }
       <kbd>Ctrl K</kbd>
       <button id="qClear" class="clear" type="button" aria-label="Clear search">✕</button>
     </div>
-    <div class="search-status" id="searchStatus" aria-live="polite"></div>
+    <div class="search-status">
+      <span id="searchNav" hidden>
+        <button class="sbtn" id="qPrev" type="button" aria-label="Previous match" title="Previous match (Shift+Enter)">↑</button>
+        <button class="sbtn" id="qNext" type="button" aria-label="Next match" title="Next match (Enter)">↓</button>
+      </span>
+      <span id="searchStatus" aria-live="polite"></span>
+    </div>
     <ul class="nav">
       <li><a href="#top"><span class="n">0</span>Start here</a></li>
       <li><a href="#fundamentals"><span class="n">1</span>Formula fundamentals</a>
@@ -708,7 +733,7 @@ body.searching .hero, body.searching .footer { display: none; }
         <div class="callout tip" style="margin-top:20px">
           <div class="t">How to use this handbook</div>
           <ul>
-            <li><b>Jump around.</b> Use the sidebar, or press <kbd>Ctrl</kbd>+<kbd>K</kbd> and type a function name (e.g. <code>xlookup</code>, <code>textjoin</code>).</li>
+            <li><b>Jump around.</b> Use the sidebar, or press <kbd>Ctrl</kbd>+<kbd>K</kbd> and type a function name (e.g. <code>xlookup</code>, <code>textjoin</code>). Every mention is highlighted and sections without a match are greyed out; press <kbd>Enter</kbd> to jump to the next one, <kbd>Shift</kbd>+<kbd>Enter</kbd> for the previous, <kbd>Esc</kbd> to clear.</li>
             <li><b>Tags:</b> <span class="tag basic">Basic</span> everyone should know · <span class="tag m365">365</span> needs Microsoft 365 / Excel 2021+ · <span class="tag legacy">Legacy</span> still works, but there's a better modern option · <span class="tag adv">Advanced</span> power-user territory.</li>
             <li><b>Grids with a green formula bar are live.</b> Click any cell (or use arrow keys) to see its formula; the ranges it uses light up in matching colours.</li>
             <li><b>Copy buttons</b> on every formula block give you a version you can paste straight into Excel.</li>
@@ -2901,31 +2926,121 @@ body.searching .hero, body.searching .footer { display: none; }
      Search, nav, scrollspy, theme, misc
      ===================================================================== */
   function initSearch() {
-    const box = $('#q'), wrap = $('.search'), status = $('#searchStatus');
-    const cards = $$('.card');
-    cards.forEach(c => { c.dataset.idx = ((c.dataset.keywords || '') + ' ' + c.textContent).toLowerCase(); });
-    const clearBtn = $('#qClear');
-    function run() {
-      const q = box.value.trim().toLowerCase();
-      wrap.classList.toggle('has-q', !!q);
-      if (!q) { document.body.classList.remove('searching'); cards.forEach(c => c.classList.remove('hit')); $$('.has-hit').forEach(x => x.classList.remove('has-hit')); status.textContent = ''; return; }
-      document.body.classList.add('searching');
-      $$('.has-hit').forEach(x => x.classList.remove('has-hit'));
-      let n = 0;
-      const terms = q.split(/\s+/);
-      cards.forEach(c => {
-        const nameHit = (c.dataset.keywords || '').toLowerCase().includes(q) || (c.querySelector('h4') || {}).textContent?.toLowerCase().includes(q);
-        const hit = nameHit || terms.every(t => c.dataset.idx.includes(t));
-        c.classList.toggle('hit', hit);
-        if (hit) { n++; const ss = c.closest('.subsection'); if (ss) ss.classList.add('has-hit'); const ch = c.closest('.chapter'); if (ch) ch.classList.add('has-hit'); }
+    const box = $('#q'), wrap = $('.search'), status = $('#searchStatus'), navBar = $('#searchNav');
+    const clearBtn = $('#qClear'), prevBtn = $('#qPrev'), nextBtn = $('#qNext');
+    const content = $('.content');
+    // Containers whose innerHTML is rewritten at runtime — marking inside them would be wiped out.
+    const SKIP = '.xl, .stepper, .tool, #azIndex';
+    let marks = [], cur = -1;
+
+    function clearMarks() {
+      marks.forEach(m => {
+        if (m.classList.contains('kw')) { m.classList.remove('sr', 'kw', 'cur'); return; }
+        const p = m.parentNode; if (!p) return;
+        p.replaceChild(document.createTextNode(m.textContent), m); p.normalize();
       });
-      status.textContent = n ? `${n} match${n === 1 ? '' : 'es'} — Esc to clear` : 'No matches';
+      marks = []; cur = -1;
     }
-    box.addEventListener('input', run);
-    box.addEventListener('keydown', e => { if (e.key === 'Escape') { box.value = ''; run(); box.blur(); } if (e.key === 'Enter') { const first = $('.card.hit'); if (first) { first.scrollIntoView({ block: 'start' }); closeNav(); } } });
-    clearBtn.addEventListener('click', () => { box.value = ''; run(); box.focus(); });
+    function addMarks(q) {
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const el = node.parentElement;
+          if (!el || el.closest(SKIP)) return NodeFilter.FILTER_REJECT;
+          return node.nodeValue.toLowerCase().includes(q) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
+      });
+      const nodes = []; let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+      nodes.forEach(node => {
+        const text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment();
+        let i = 0, idx;
+        while ((idx = lower.indexOf(q, i)) >= 0) {
+          if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+          const m = document.createElement('mark');
+          m.className = 'sr'; m.textContent = text.slice(idx, idx + q.length);
+          frag.appendChild(m); marks.push(m);
+          i = idx + q.length;
+        }
+        if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    }
+    // A card can match on its hidden keyword list (e.g. "vertical" → VLOOKUP) with no visible
+    // occurrence; flag its heading so the card is both un-dimmed and reachable with next/previous.
+    function addKeywordHits(q) {
+      $$('.card[data-keywords]').forEach(c => {
+        if (!c.dataset.keywords.toLowerCase().includes(q)) return;
+        if (c.querySelector('.sr')) return;
+        const h = c.querySelector('h4'); if (!h) return;
+        h.classList.add('sr', 'kw'); marks.push(h);
+      });
+      marks.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1);
+    }
+    const has = el => !!el.querySelector('.sr');
+    function applyDim(q) {
+      // Dim only the outermost non-matching level so opacity never compounds.
+      $$('.chapter').forEach(ch => {
+        const chHit = has(ch);
+        ch.classList.toggle('dim', !chHit);
+        $$('.subsection', ch).forEach(ss => {
+          const ssHit = has(ss);
+          ss.classList.toggle('dim', chHit && !ssHit);
+          $$('.card', ss).forEach(c => c.classList.toggle('dim', chHit && ssHit && !has(c) && !c.classList.contains('sr')));
+        });
+      });
+      const hero = $('.hero'); if (hero) hero.classList.toggle('dim', !has(hero));
+      $$('.nav a[href^="#"]').forEach(a => {
+        const t = $(a.getAttribute('href'));
+        a.classList.toggle('dim', !!t && (t.classList.contains('chapter') || t.classList.contains('subsection')) && !has(t));
+      });
+    }
+    function setStatus() {
+      if (!marks.length) { status.textContent = 'No matches'; navBar.hidden = true; return; }
+      navBar.hidden = false;
+      status.textContent = `${cur + 1} of ${marks.length}`;
+      prevBtn.disabled = nextBtn.disabled = marks.length < 2;
+    }
+    function go(delta) {
+      if (!marks.length) return;
+      if (cur >= 0 && marks[cur]) marks[cur].classList.remove('cur');
+      cur = (cur + delta + marks.length) % marks.length;
+      const m = marks[cur];
+      m.classList.add('cur');
+      const d = m.closest('details'); if (d) d.open = true;
+      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      m.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'auto' });
+      closeNav();
+      setStatus();
+    }
+    function run(keepIndex) {
+      const q = box.value.trim().toLowerCase();
+      const prevIndex = cur;
+      clearMarks();
+      wrap.classList.toggle('has-q', !!q);
+      if (!q) {
+        document.body.classList.remove('searching');
+        $$('.dim').forEach(x => x.classList.remove('dim'));
+        status.textContent = ''; navBar.hidden = true;
+        return;
+      }
+      document.body.classList.add('searching');
+      addMarks(q);
+      addKeywordHits(q);
+      applyDim(q);
+      if (marks.length) { cur = keepIndex ? Math.min(prevIndex, marks.length - 1) : 0; if (cur < 0) cur = 0; marks[cur].classList.add('cur'); }
+      setStatus();
+    }
+    box.addEventListener('input', () => run(false));
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { box.value = ''; run(false); box.blur(); }
+      else if (e.key === 'Enter') { e.preventDefault(); go(e.shiftKey ? -1 : 1); }
+    });
+    prevBtn.addEventListener('click', () => { go(-1); box.focus(); });
+    nextBtn.addEventListener('click', () => { go(1); box.focus(); });
+    clearBtn.addEventListener('click', () => { box.value = ''; run(false); box.focus(); });
     document.addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openNav(); box.focus(); box.select(); }
+      else if (e.key === 'F3' || (e.key === 'Escape' && document.body.classList.contains('searching') && document.activeElement !== box)) { e.preventDefault(); if (e.key === 'F3') go(e.shiftKey ? -1 : 1); else { box.value = ''; run(false); } }
       else if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); openNav(); box.focus(); }
     });
   }
