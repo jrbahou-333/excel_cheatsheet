@@ -500,16 +500,6 @@ table.ref td.err { font-family: var(--mono); font-weight: 700; color: var(--dang
 .fmt-out .warnline { color: var(--warn); font-family: var(--font); font-size: .82rem; white-space: normal; margin-bottom: 8px; }
 .fmt-out.empty { color: var(--ink-3); font-family: var(--font); white-space: normal; }
 .fmt-stats { font-size: .78rem; color: var(--ink-3); margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
-.nf-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-.nf-cell { border: 1px solid var(--line-2); border-radius: 7px; overflow: hidden; }
-.nf-cell .l { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); padding: 5px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
-.nf-cell .v { padding: 12px 12px; font-family: var(--font); font-size: 1.2rem; text-align: right; font-variant-numeric: tabular-nums; min-height: 52px; background: var(--surface); color: var(--ink); white-space: pre; overflow-x: auto; }
-.nf-cell .v.left { text-align: left; }
-.nf-cell .v .red { color: var(--danger); }
-.nf-cell .v .blue { color: var(--brand-deep); }
-.nf-cell .v .green { color: var(--ok); }
-.nf-cell .v .warnv { color: var(--warn); font-size: .85rem; font-family: var(--font); white-space: normal; }
-.nf-note { font-size: .8rem; color: var(--ink-3); margin-top: 8px; }
 .xle-res { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-top: 12px; }
 .xle-res .r { background: var(--xl-green-tint); border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; font-family: var(--mono); font-weight: 700; color: var(--xl-green); font-size: 1.05rem; word-break: break-word; }
 .xle-res .r small { display: block; font-family: var(--font); font-weight: 600; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
@@ -637,14 +627,17 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
 <header class="topbar">
   <button id="menuBtn" class="tbtn" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <a class="logo" href="#top" aria-label="Aether Excel Handbook">
-    <!-- LOGO: recreated from the Aether wordmark. Replace this <svg> with the official logo file if preferred. -->
+    <!-- LOGO: hand-drawn approximation of the Aether wordmark — NOT the official asset.
+         currentColor makes it render white on this navy header and blue on light grounds.
+         To use the real logo: commit it as assets/logo.svg and replace this whole <svg>
+         with the file's contents (or an <img src="assets/logo.svg" alt="Aether">). -->
     <svg viewBox="0 -4 300 94" role="img" aria-label="Aether" xmlns="http://www.w3.org/2000/svg">
       <text x="2" y="70" font-family="Figtree, 'Segoe UI', Arial, sans-serif" font-weight="800" font-style="italic" font-size="72" letter-spacing="-1.5" fill="currentColor">Aether</text>
-      <g fill="none" stroke="currentColor" stroke-width="5">
-        <circle cx="253" cy="66" r="15"/>
-        <circle cx="284" cy="45" r="12"/>
-        <circle cx="264" cy="25" r="9.5"/>
-        <circle cx="280" cy="5" r="7"/>
+      <g fill="none" stroke="currentColor" stroke-width="4">
+        <circle cx="255" cy="66" r="12.8"/>
+        <circle cx="283" cy="46" r="10.2"/>
+        <circle cx="266" cy="25" r="7.8"/>
+        <circle cx="284" cy="9" r="6"/>
       </g>
     </svg>
     <span class="sub">Excel Handbook</span>
@@ -690,10 +683,8 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
           <li><a href="#let">Naming pieces with LET</a></li>
         </ul>
       </li>
-      <li><a href="#text"><span class="n">3</span>Text &amp; number formats</a>
+      <li><a href="#text"><span class="n">3</span>Text &amp; dates</a>
         <ul class="sub">
-          <li><a href="#numformats">Custom number formats</a></li>
-          <li><a href="#nfbuilder">Format builder tool</a></li>
           <li><a href="#textfns">Text functions</a></li>
           <li><a href="#dates">Dates</a></li>
         </ul>
@@ -733,6 +724,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       <li><a href="#errors"><span class="n">8</span>Errors &amp; debugging</a>
         <ul class="sub">
           <li><a href="#errtable">Every error explained</a></li>
+          <li><a href="#evaluate">Evaluate Formula</a></li>
           <li><a href="#debugging">Debugging toolkit</a></li>
         </ul>
       </li>
@@ -770,7 +762,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
         </div>
         <div class="quick-grid">
           <a href="#formatter"><span class="n">TOOL</span><br>Formula formatter<small>Paste a monster formula, get it laid out readably</small></a>
-          <a href="#nfbuilder"><span class="n">TOOL</span><br>Number format builder<small>Try custom format codes live</small></a>
+          <a href="#evaluate"><span class="n">REF</span><br>Evaluate Formula<small>Excel's own step-by-step debugger</small></a>
           <a href="#xle"><span class="n">TOOL</span><br>XLOOKUP explorer<small>See what each match mode does</small></a>
           <a href="#errtable"><span class="n">REF</span><br>Every error explained<small>#N/A, #REF!, #SPILL! and friends</small></a>
           <a href="#decision"><span class="n">REF</span><br>Which lookup should I use?<small>A one-minute decision flow</small></a>
@@ -1012,77 +1004,9 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
 <section class="chapter" id="text">
   <header>
     <span class="eyebrow">Chapter 3</span>
-    <h2>Text &amp; number formats</h2>
-    <p class="intro">Formatting changes how a value <em>looks</em> without changing what it <em>is</em> — so you can keep full precision in the cell and still show "12.3 kt". Text functions are for when the value itself needs reshaping: splitting codes, cleaning imports, building labels.</p>
+    <h2>Text &amp; dates</h2>
+    <p class="intro">Reshaping the value itself: splitting site codes, cleaning up imports, building labels, and working with dates — which Excel stores as plain numbers, a fact behind most date oddities.</p>
   </header>
-
-  <div class="subsection" id="numformats">
-    <h3>Custom number formats <span class="tag basic">Basic</span></h3>
-    <p>Select cells, press <kbd>Ctrl</kbd>+<kbd>1</kbd>, choose <b>Custom</b>, and type a format code. The code is built from a few characters:</p>
-    <div class="tbl-wrap"><table class="ref">
-      <thead><tr><th>Code</th><th>Meaning</th><th>Example</th><th>1234.5 shows as</th></tr></thead>
-      <tbody>
-        <tr><td><code>0</code></td><td>Digit — always shown (pads with zeros)</td><td><code>0.00</code></td><td class="tnum">1234.50</td></tr>
-        <tr><td><code>#</code></td><td>Digit — shown only if needed</td><td><code>#,##0.#</code></td><td class="tnum">1,234.5</td></tr>
-        <tr><td><code>?</code></td><td>Digit — replaced by a space if missing (aligns decimals)</td><td><code>0.??</code></td><td class="tnum">1234.5&nbsp;</td></tr>
-        <tr><td><code>,</code></td><td>Thousands separator (between digits) or ÷1000 scaling (at the end)</td><td><code>#,##0,"k"</code></td><td class="tnum">1k</td></tr>
-        <tr><td><code>%</code></td><td>Multiply by 100 and add a % sign</td><td><code>0.0%</code></td><td class="tnum">123450.0%</td></tr>
-        <tr><td><code>"text"</code></td><td>Literal text (units, labels)</td><td><code>0.0 "tCO2e"</code></td><td class="tnum">1234.5 tCO2e</td></tr>
-        <tr><td><code>;</code></td><td>Section separator: <code>positive;negative;zero;text</code></td><td><code>0;(0);"-"</code></td><td class="tnum">1235</td></tr>
-        <tr><td><code>[Red]</code></td><td>Colour for that section (Red, Blue, Green, Black, White, Yellow, Magenta, Cyan)</td><td><code>0;[Red]-0</code></td><td class="tnum">1235</td></tr>
-        <tr><td><code>[&gt;=1000]</code></td><td>Condition — apply the section only if the test passes</td><td><code>[&gt;=1000]0,"k";0</code></td><td class="tnum">1k</td></tr>
-        <tr><td><code>_x</code></td><td>Leave a space as wide as character <em>x</em> (align brackets)</td><td><code>0_);(0)</code></td><td class="tnum">1235&nbsp;</td></tr>
-        <tr><td><code>*x</code></td><td>Repeat character <em>x</em> to fill the cell</td><td><code>0*.</code></td><td class="tnum">1235........</td></tr>
-        <tr><td><code>d m y h s</code></td><td>Date and time parts (see <a href="#dates">dates</a>)</td><td><code>ddd d mmm yyyy</code></td><td class="tnum">Mon 18 May 1903</td></tr>
-        <tr><td><code>@</code></td><td>The cell's text (in the 4th section)</td><td><code>0;-0;0;"Note: "@</code></td><td class="tnum">1235</td></tr>
-      </tbody>
-    </table></div>
-    <div class="callout tip">
-      <div class="t">The formats worth memorising</div>
-      <ul>
-        <li><code>#,##0</code> — whole numbers with thousands separators. <code>#,##0.00</code> for two decimals.</li>
-        <li><code>#,##0;[Red](#,##0);"-"</code> — accounting style: negatives red in brackets, zeros as a dash. Makes tables scannable.</li>
-        <li><code>#,##0,"k"</code> and <code>#,##0,,"m"</code> — show thousands or millions without changing the underlying number.</li>
-        <li><code>0.0%</code> — percentages from decimal fractions (0.153 → 15.3%).</li>
-        <li><code>dd/mm/yyyy</code> · <code>mmm-yy</code> · <code>ddd d mmm</code> — unambiguous UK dates.</li>
-        <li><code>[h]:mm</code> — durations over 24 hours (e.g. 37:30) instead of wrapping.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="subsection" id="nfbuilder">
-    <h3>Number format builder</h3>
-    <div class="tool" id="nfbuilderTool">
-      <div class="thead"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M8 12h8M8 8h8M8 16h5"/></svg>Try a format code</h4><span class="d">Type a value and a code — the preview updates as you type.</span></div>
-      <div class="tbody">
-        <div class="row">
-          <div class="grow"><label for="nfValue">Value (number, or a date like 2026-09-18, or text)</label><input id="nfValue" class="mono" type="text" value="-1234567.891" spellcheck="false"></div>
-          <div class="grow"><label for="nfCode">Format code</label><input id="nfCode" class="mono" type="text" value='#,##0;[Red](#,##0);"-"' spellcheck="false"></div>
-        </div>
-        <div class="chips">
-          <button class="chip" type="button" data-code="#,##0.00">#,##0.00</button>
-          <button class="chip" type="button" data-code='#,##0;[Red](#,##0);"-"'>#,##0;[Red](#,##0);"-"</button>
-          <button class="chip" type="button" data-code='#,##0,"k"'>#,##0,"k"</button>
-          <button class="chip" type="button" data-code='#,##0.0,,"m"'>#,##0.0,,"m"</button>
-          <button class="chip" type="button" data-code="0.0%" data-val="0.153">0.0%</button>
-          <button class="chip" type="button" data-code='0.000 "tCO2e"' data-val="72.5701">0.000 "tCO2e"</button>
-          <button class="chip" type="button" data-code='"£"#,##0.00'>"£"#,##0.00</button>
-          <button class="chip" type="button" data-code="000000" data-val="42">000000</button>
-          <button class="chip" type="button" data-code="dd/mm/yyyy" data-val="2026-09-18">dd/mm/yyyy</button>
-          <button class="chip" type="button" data-code="ddd d mmm yyyy" data-val="2026-09-18">ddd d mmm yyyy</button>
-          <button class="chip" type="button" data-code="mmm-yy" data-val="2026-09-18">mmm-yy</button>
-          <button class="chip" type="button" data-code="hh:mm AM/PM" data-val="2026-09-18 14:30">hh:mm AM/PM</button>
-          <button class="chip" type="button" data-code="[h]:mm" data-val="1.5625">[h]:mm</button>
-        </div>
-        <div class="nf-preview">
-          <div class="nf-cell"><div class="l">Stored value (what formulas see)</div><div class="v" id="nfRaw"></div></div>
-          <div class="nf-cell"><div class="l">Displayed (what the format shows)</div><div class="v" id="nfOut"></div></div>
-        </div>
-        <div class="nf-note" id="nfNote"></div>
-        <p class="nf-note">Simulates the common subset of Excel's format language: digit placeholders, thousands and scaling commas, %, literal text, sections, colours, and date/time codes. Conditions such as <code>[&gt;=1000]</code>, fractions and scientific notation are not simulated.</p>
-      </div>
-    </div>
-  </div>
 
   <div class="subsection" id="textfns">
     <h3>Text functions</h3>
@@ -1092,7 +1016,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
     <div class="card" id="fn-text" data-keywords="TEXT format number as text label">
       <h4><code>TEXT</code> <span class="tag basic">Basic</span></h4>
       <p class="sig"><span class="fn">TEXT</span>(<span class="arg">value</span>, <span class="arg">format_code</span>)</p>
-      <p>Turns a number into text using any number-format code from the table above. Essential when building labels with <code>&amp;</code>, because <code>&amp;</code> ignores cell formatting.</p>
+      <p>Turns a number into text using a format code — the same codes you can type into <b>Format Cells</b> (<kbd>Ctrl</kbd>+<kbd>1</kbd>) → Custom, such as <code>#,##0.0</code> or <code>d mmm yyyy</code>. Essential when building labels with <code>&amp;</code>, because <code>&amp;</code> ignores cell formatting.</p>
       <pre class="fx">="Total: "&amp;TEXT(E6,"#,##0.0")&amp;" tCO2e as at "&amp;TEXT(TODAY(),"d mmm yyyy")
 → Total: 72.6 tCO2e as at 18 Sep 2026</pre>
       <p class="why">The result is <em>text</em> — you can't sum it. Keep the number in its own cell and only use TEXT for the label.</p>
@@ -1851,11 +1775,40 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
     </div>
   </div>
 
+  <div class="subsection" id="evaluate">
+    <h3>Evaluate Formula — Excel's own step-by-step debugger <span class="tag basic">Basic</span></h3>
+    <p>The single most useful button for understanding a formula someone else wrote. Select the cell, then <b>Formulas</b> tab → <b>Formula Auditing</b> group → <b>Evaluate Formula</b>. A dialog opens showing the formula with one part <u>underlined</u>: that's the piece Excel will work out next. Press <b>Evaluate</b> and the underlined piece is replaced, in place, by its result. Keep pressing and you watch the formula collapse to its answer — exactly the inside-out reading from <a href="#inside-out">chapter 2</a>, done for you.</p>
+    <div class="tbl-wrap"><table class="ref">
+      <thead><tr><th>Button</th><th>What it does</th><th>Use it when</th></tr></thead>
+      <tbody>
+        <tr><td><b>Evaluate</b></td><td>Works out the underlined part and replaces it with its value</td><td>Every step — this is the one you'll press most</td></tr>
+        <tr><td><b>Step In</b></td><td>Opens the formula of the referenced cell in a sub-panel, so you can evaluate <em>that</em> formula too</td><td>The underlined part is a reference to another cell and you suspect the problem is there</td></tr>
+        <tr><td><b>Step Out</b></td><td>Returns from that sub-panel with the referenced cell's value filled in</td><td>You've seen what the other cell produces</td></tr>
+        <tr><td><b>Restart</b></td><td>Starts again from the original formula (the button becomes Restart once you reach the end)</td><td>You clicked past the interesting bit</td></tr>
+      </tbody>
+    </table></div>
+    <p>Here's the same process on a realistic formula. Cells <code>C2:C5</code> hold 48,200 / 96,500 / 31,500 / 210,000 kWh and <code>F1</code> holds the factor 0.18293. Step through it exactly as the dialog would:</p>
+    <div data-stepper="st_evaluate"></div>
+    <div class="callout tip">
+      <div class="t">Getting the most out of it</div>
+      <ul>
+        <li><b>Watch which branch runs.</b> An <code>IF</code> only evaluates the side that wins. If the answer looks wrong, check the test resolved the way you assumed — a broken formula in the branch that never runs stays invisible.</li>
+        <li><b>Italic text means "already calculated".</b> Excel shows a value in italics when it came from a cell it has evaluated on a previous pass; it won't recalculate it.</li>
+        <li><b>It cannot step into everything.</b> Step In is greyed out for references to another workbook, to a cell that contains a constant rather than a formula, and for the same reference a second time.</li>
+        <li><b>Nothing is changed.</b> Unlike <kbd>F9</kbd>, Evaluate Formula never edits the cell — you can close it at any point with no risk.</li>
+      </ul>
+    </div>
+    <div class="compare">
+      <div><div class="t">Use <b>Evaluate Formula</b> when…</div><p class="small">You want the whole story in order, you're reading someone else's work, an <code>IF</code> is picking the wrong branch, or the formula is long enough that you'd lose your place doing it by hand. Safe — it can't alter the cell.</p></div>
+      <div><div class="t">Use <kbd>F9</kbd> when…</div><p class="small">You want one specific piece checked immediately: select just that part in the formula bar and press <kbd>F9</kbd>. Faster, but it writes the result into the formula — always press <kbd>Esc</kbd> afterwards, never <kbd>Enter</kbd>.</p></div>
+    </div>
+  </div>
+
   <div class="subsection" id="debugging">
     <h3>Debugging toolkit</h3>
     <ol>
       <li><b>Read the error.</b> The table above tells you which family of problem you have — don't start by rewriting the formula.</li>
-      <li><b>Evaluate a piece.</b> In the formula bar, select one function or bracket group and press <kbd>F9</kbd>. Look at the value. <kbd>Esc</kbd> to leave the formula unchanged. Or use <b>Formulas → Evaluate Formula</b> to step through the lot.</li>
+      <li><b>Evaluate a piece.</b> In the formula bar, select one function or bracket group and press <kbd>F9</kbd>. Look at the value. <kbd>Esc</kbd> to leave the formula unchanged. For the whole formula in order, use <a href="#evaluate">Evaluate Formula</a>.</li>
       <li><b>Check the inputs, not the formula.</b> Most lookup failures are data: a trailing space, "1001" as text vs 1001 as a number, a date with a hidden time. <code>=LEN(A2)</code>, <code>=ISNUMBER(A2)</code>, <code>=A2=F5</code> answer these in seconds.</li>
       <li><b>Trace it.</b> Formulas → <b>Trace Precedents</b> draws arrows from every input into this cell; <b>Trace Dependents</b> shows what breaks if you change it. Clear with Remove Arrows.</li>
       <li><b>Show formulas.</b> <kbd>Ctrl</kbd>+<kbd>`</kbd> reveals a hard-coded number hiding in a column of formulas, or a formula that was pasted as a value.</li>
@@ -2105,6 +2058,20 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       { sub: 'FILTER(A2:A9,B2:B9="Electricity")', result: '{"Oxford office";"Madrid office";"Oxford office"}', note: '<b>FILTER</b> keeps only the site names (A2:A9) on rows where the test was TRUE. Three sites — with a duplicate.' },
       { sub: 'UNIQUE(FILTER(A2:A9,B2:B9="Electricity"))', result: '{"Oxford office";"Madrid office"}', note: '<b>UNIQUE</b> removes the duplicate, keeping the order in which names first appeared.' },
       { sub: 'TEXTJOIN(", ",TRUE,UNIQUE(FILTER(A2:A9,B2:B9="Electricity")))', result: '"Oxford office, Madrid office"', note: '<b>TEXTJOIN</b> glues the list into one string with ", " between items. The <code>TRUE</code> tells it to skip any empty cells.' }
+    ]
+  };
+
+  T.st_evaluate = {
+    title: 'What Evaluate Formula shows you, click by click',
+    intro: 'This is what the dialog displays each time you press <b>Evaluate</b>. The underlined part is what Excel works out next; here it is highlighted instead.',
+    formula: '=IF(SUM(C2:C5)>50000,ROUND(SUM(C2:C5)*$F$1/1000,2),"below threshold")',
+    steps: [
+      { sub: 'SUM(C2:C5)', nth: 1, result: '386200', note: 'Excel underlines the innermost expression first. One click on <b>Evaluate</b> replaces <code>SUM(C2:C5)</code> with <b>386200</b> right there in the dialog — the cell itself is untouched.' },
+      { sub: 'SUM(C2:C5)>50000', nth: 1, result: 'TRUE', note: 'Now the comparison. 386,200 is above the threshold, so the test is <b>TRUE</b>. This is the step worth watching: if a formula returns the wrong thing, it is usually because this resolved the opposite way to what you assumed.' },
+      { sub: 'SUM(C2:C5)', nth: 2, result: '386200', note: 'Because the test was TRUE, Excel evaluates <b>only</b> the value_if_true argument — the <code>"below threshold"</code> branch is skipped entirely and never appears again. A mistake hiding in the unused branch would stay invisible here.' },
+      { sub: 'SUM(C2:C5)*$F$1/1000', nth: 1, result: '70.6381...', note: 'Arithmetic in the usual order: multiply by the factor in <code>$F$1</code>, then divide by 1000 to get tonnes. If <code>$F$1</code> were empty you would see <b>0</b> at this step — the fastest way to spot a missing input.' },
+      { sub: 'ROUND(SUM(C2:C5)*$F$1/1000,2)', nth: 1, result: '70.64', note: 'ROUND wraps the lot, trimming to 2 decimal places.' },
+      { sub: '=IF(SUM(C2:C5)>50000,ROUND(SUM(C2:C5)*$F$1/1000,2),"below threshold")', nth: 1, result: '70.64', note: 'Everything has collapsed to one value, which matches what the cell shows. The button now reads <b>Restart</b> — press it to run through again, or Close to leave the formula exactly as it was.' }
     ]
   };
 
@@ -2718,165 +2685,6 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
   }
 
   /* =====================================================================
-     Number format builder (subset of Excel custom formats)
-     ===================================================================== */
-  function excelSerialToDate(n) { const ms = Math.round((n - 25569) * 86400000); return new Date(ms); } // UTC
-  function dateToSerial(d) { return d.getTime() / 86400000 + 25569; }
-  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  function splitSections(code) {
-    const secs = []; let cur = '', q = false;
-    for (const ch of code) { if (ch === '"') q = !q; if (ch === ';' && !q) { secs.push(cur); cur = ''; } else cur += ch; }
-    secs.push(cur); return secs;
-  }
-  function applyNumberFormat(value, code) {
-    // returns {text, color, warn}
-    if (!code || code.trim().toLowerCase() === 'general') return { text: typeof value === 'number' ? String(+value.toPrecision(11)) : String(value), color: null };
-    const secs = splitSections(code);
-    const isText = typeof value !== 'number';
-    let sec, v = value, sectionIdx;
-    if (isText) { sec = secs[3] !== undefined ? secs[3] : null; if (sec === null) return { text: String(value), color: null }; sectionIdx = 3; }
-    else if (secs.length === 1) { sec = secs[0]; sectionIdx = 0; }
-    else if (secs.length === 2) { if (v < 0) { sec = secs[1]; v = -v; sectionIdx = 1; } else { sec = secs[0]; sectionIdx = 0; } }
-    else { if (v > 0) { sec = secs[0]; sectionIdx = 0; } else if (v < 0) { sec = secs[1]; v = -v; sectionIdx = 1; } else { sec = secs[2]; sectionIdx = 2; } }
-    let color = null; let warn = null;
-    sec = sec.replace(/\[(Red|Blue|Green|Black|White|Yellow|Magenta|Cyan|Color\d+)\]/gi, (m, c) => { color = c.toLowerCase(); return ''; });
-    sec = sec.replace(/\[(<=|>=|<>|<|>|=)[^\]]*\]/g, () => { warn = 'Conditional sections like [>=1000] are not simulated here — Excel does support them.'; return ''; });
-    sec = sec.replace(/\[\$[^\]]*\]/g, m => { const cur = m.slice(2).split('-')[0]; return '"' + cur + '"'; });
-    if (isText) { return { text: sec.replace(/"([^"]*)"/g, '$1').replace(/@/g, String(value)).replace(/\\(.)/g, '$1'), color, warn }; }
-    // detect date/time section (letters d m y h s outside quotes)
-    const bare = sec.replace(/"[^"]*"/g, '').replace(/\\./g, '');
-    const isDate = /[dyhs]|m/i.test(bare) && !/[#0?]/.test(bare) ? true : /(?:^|[^"])\b(?:yyyy|yy|mmmm|mmm|dddd|ddd|dd|hh|ss|am\/pm)\b/i.test(bare);
-    if (isDate || /\[h+\]|\[m+\]|\[s+\]/i.test(bare)) {
-      if (v < 0) return { text: '########', color, warn: 'Negative dates/times show as #### in Excel.' };
-      return { text: formatDate(v, sec), color, warn };
-    }
-    return Object.assign({ color, warn }, formatNumber(v, sec, sectionIdx === 1 && secs.length >= 2 ? false : v < 0));
-  }
-  function formatDate(v, sec) {
-    const totalSecs = Math.round(v * 86400);
-    const d = excelSerialToDate(Math.floor(v));
-    const secsInDay = totalSecs - Math.floor(v) * 86400;
-    const hh = Math.floor(secsInDay / 3600), mi = Math.floor((secsInDay % 3600) / 60), ss = secsInDay % 60;
-    const Y = d.getUTCFullYear(), M = d.getUTCMonth(), D = d.getUTCDate(), W = d.getUTCDay();
-    const has12 = /am\/pm|a\/p/i.test(sec);
-    let out = ''; let i = 0; const s = sec;
-    const pad = n => String(n).padStart(2, '0');
-    let prevWasHour = false;
-    while (i < s.length) {
-      const ch = s[i];
-      if (ch === '"') { const j = s.indexOf('"', i + 1); out += s.slice(i + 1, j < 0 ? s.length : j); i = j < 0 ? s.length : j + 1; continue; }
-      if (ch === '\\') { out += s[i + 1] || ''; i += 2; continue; }
-      if (ch === '[') { const j = s.indexOf(']', i); const t = s.slice(i + 1, j).toLowerCase(); if (/^h+$/.test(t)) { out += Math.floor(totalSecs / 3600); prevWasHour = true; } else if (/^m+$/.test(t)) out += Math.floor(totalSecs / 60); else if (/^s+$/.test(t)) out += totalSecs; i = j + 1; continue; }
-      const rest = s.slice(i).toLowerCase();
-      let m;
-      if ((m = /^am\/pm/.exec(rest))) { out += hh >= 12 ? 'PM' : 'AM'; i += 5; prevWasHour = false; continue; }
-      if ((m = /^a\/p/.exec(rest))) { out += hh >= 12 ? 'p' : 'a'; i += 3; continue; }
-      if ((m = /^y+/.exec(rest))) { out += m[0].length <= 2 ? String(Y).slice(-2) : String(Y); i += m[0].length; prevWasHour = false; continue; }
-      if ((m = /^d+/.exec(rest))) { const L = m[0].length; out += L === 1 ? D : L === 2 ? pad(D) : L === 3 ? DAYS[W].slice(0, 3) : DAYS[W]; i += L; prevWasHour = false; continue; }
-      if ((m = /^h+/.exec(rest))) { const L = m[0].length; let h = has12 ? (hh % 12 || 12) : hh; out += L === 1 ? h : pad(h); i += L; prevWasHour = true; continue; }
-      if ((m = /^s+/.exec(rest))) { const L = m[0].length; out += L === 1 ? ss : pad(ss); i += L; prevWasHour = false; continue; }
-      if ((m = /^m+/.exec(rest))) {
-        const L = m[0].length;
-        const nextIsSec = /^[^a-z]*s/i.test(s.slice(i + L));
-        if (L <= 2 && (prevWasHour || nextIsSec)) out += L === 1 ? mi : pad(mi);
-        else out += L === 1 ? (M + 1) : L === 2 ? pad(M + 1) : L === 3 ? MONTHS[M].slice(0, 3) : L === 5 ? MONTHS[M][0] : MONTHS[M];
-        i += L; prevWasHour = false; continue;
-      }
-      out += ch; i++;
-    }
-    return out;
-  }
-  function formatNumber(v, sec, addMinus) {
-    // parse into: prefix literals, integer placeholders, decimal placeholders, suffix literals, scaling, percent, thousands
-    let s = sec; let percent = false; let scale = 0; let thousands = false;
-    // extract literal pieces into tokens
-    const toks = []; let i = 0;
-    while (i < s.length) {
-      const ch = s[i];
-      if (ch === '"') { const j = s.indexOf('"', i + 1); toks.push({ t: 'lit', v: s.slice(i + 1, j < 0 ? s.length : j) }); i = j < 0 ? s.length : j + 1; continue; }
-      if (ch === '\\') { toks.push({ t: 'lit', v: s[i + 1] || '' }); i += 2; continue; }
-      if (ch === '_') { toks.push({ t: 'lit', v: ' ' }); i += 2; continue; }
-      if (ch === '*') { i += 2; continue; }
-      if (ch === '%') { percent = true; toks.push({ t: 'lit', v: '%' }); i++; continue; }
-      if (ch === ',') { toks.push({ t: 'comma' }); i++; continue; }
-      if (ch === '.') { toks.push({ t: 'dot' }); i++; continue; }
-      if (ch === '0' || ch === '#' || ch === '?') { toks.push({ t: 'ph', v: ch }); i++; continue; }
-      if (/[eE]/.test(ch) && /^[eE][+-]/.test(s.slice(i))) { toks.push({ t: 'lit', v: s.slice(i, i + 2) }); i += 2; continue; }
-      if (ch === '(' || ch === ')' || ch === '-' || ch === '+' || ch === '/' || ch === ':' || ch === ' ' || ch === '£' || ch === '$' || ch === '€') { toks.push({ t: 'lit', v: ch }); i++; continue; }
-      toks.push({ t: 'lit', v: ch }); i++;
-    }
-    // determine placeholders
-    const phIdx = toks.map((t, k) => t.t === 'ph' ? k : -1).filter(k => k >= 0);
-    if (!phIdx.length) { return { text: toks.map(t => t.t === 'lit' ? t.v : t.t === 'comma' ? ',' : t.t === 'dot' ? '.' : '').join('') }; }
-    const dotIdx = toks.findIndex(t => t.t === 'dot');
-    const firstPh = phIdx[0], lastPh = phIdx[phIdx.length - 1];
-    // commas between integer placeholders => thousands; commas directly after the last integer placeholder => ÷1000 scaling
-    const intPhIdx = phIdx.filter(p => dotIdx < 0 || p < dotIdx);
-    const lastInt = intPhIdx.length ? intPhIdx[intPhIdx.length - 1] : -1;
-    for (let k = lastInt + 1; k < toks.length && toks[k].t === 'comma'; k++) scale++;
-    toks.forEach((t, k) => { if (t.t === 'comma' && k > firstPh && k < lastInt) thousands = true; });
-    let num = v; if (percent) num *= 100; num = num / Math.pow(1000, scale);
-    const intPh = toks.filter((t, k) => t.t === 'ph' && (dotIdx < 0 || k < dotIdx));
-    const decPh = toks.filter((t, k) => t.t === 'ph' && dotIdx >= 0 && k > dotIdx);
-    const decimals = decPh.length;
-    const rounded = Math.round(Math.abs(num) * Math.pow(10, decimals)) / Math.pow(10, decimals);
-    let [ip, dp] = rounded.toFixed(decimals).split('.');
-    dp = dp || '';
-    // integer part
-    const minInt = intPh.filter(t => t.v === '0').length;
-    if (ip === '0' && minInt === 0 && (decimals > 0 || intPh.length)) ip = intPh.length ? '' : '0';
-    if (ip.length < minInt) ip = ip.padStart(minInt, '0');
-    if (ip === '' && decimals === 0) ip = intPh.some(t => t.v === '0') ? '0' : '';
-    if (thousands && ip) ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    // decimals: trim trailing for # placeholders
-    if (decimals) {
-      let out = dp.split('');
-      for (let k = decPh.length - 1; k >= 0; k--) { if (out[k] !== '0') break; if (decPh[k].v === '#') out[k] = ''; else if (decPh[k].v === '?') out[k] = ' '; else break; }
-      dp = out.join('').replace(/\s+$/, m => m); // keep '?' spaces
-    }
-    // assemble: literals before first placeholder, number, literals after last placeholder (skip commas, placeholders, dot)
-    let prefix = '', suffix = '';
-    toks.slice(0, firstPh).forEach(t => { if (t.t === 'lit') prefix += t.v; });
-    toks.slice(lastPh + 1).forEach(t => { if (t.t === 'lit') suffix += t.v; });
-    // literals between int and dec placeholders are rare; ignore
-    let numText = ip + (decimals && dp.trim().length ? '.' + dp : (decimals && dp.length ? '.' + dp : ''));
-    const text = (addMinus ? '-' : '') + prefix + numText + suffix;
-    return { text };
-  }
-  window.applyNumberFormat = applyNumberFormat;
-
-  function initFormatBuilder() {
-    const root = $('#nfbuilderTool'); if (!root) return;
-    const valIn = $('#nfValue', root), codeIn = $('#nfCode', root), outV = $('#nfOut', root), outRaw = $('#nfRaw', root), note = $('#nfNote', root);
-    function parseValue(s) {
-      s = s.trim();
-      if (s === '') return 0;
-      const dm = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/.exec(s);
-      if (dm) { const d = Date.UTC(+dm[1], +dm[2] - 1, +dm[3], +(dm[4] || 0), +(dm[5] || 0), +(dm[6] || 0)); return dateToSerial(new Date(d)); }
-      const dm2 = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
-      if (dm2) { return dateToSerial(new Date(Date.UTC(+dm2[3], +dm2[2] - 1, +dm2[1]))); }
-      const tm = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(s);
-      if (tm) return (+tm[1] * 3600 + +tm[2] * 60 + +(tm[3] || 0)) / 86400;
-      const n = Number(s.replace(/,/g, ''));
-      if (!isNaN(n)) return n;
-      return s; // text
-    }
-    function run() {
-      const v = parseValue(valIn.value); const code = codeIn.value;
-      let r; try { r = applyNumberFormat(v, code); } catch (e) { r = { text: '', warn: 'Could not interpret that format code.' }; }
-      outRaw.textContent = typeof v === 'number' ? (+v.toPrecision(12)).toString() : v;
-      outRaw.className = 'v' + (typeof v === 'number' ? '' : ' left');
-      outV.innerHTML = `<span class="${r.color === 'red' ? 'red' : r.color === 'blue' ? 'blue' : r.color === 'green' ? 'green' : ''}">${esc(r.text)}</span>`;
-      outV.className = 'v' + (typeof v === 'number' ? '' : ' left');
-      note.textContent = r.warn || '';
-    }
-    [valIn, codeIn].forEach(el => el.addEventListener('input', run));
-    $$('.chip[data-code]', root).forEach(c => c.addEventListener('click', () => { codeIn.value = c.dataset.code; if (c.dataset.val) valIn.value = c.dataset.val; run(); }));
-    run();
-  }
-
-  /* =====================================================================
      XLOOKUP explorer
      ===================================================================== */
   function initXlookupExplorer() {
@@ -3183,7 +2991,7 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
   function initPrint() { $('#printBtn').addEventListener('click', () => { $$('details').forEach(d => d.open = true); window.print(); }); }
 
   document.addEventListener('DOMContentLoaded', () => {
-    initFormulaBlocks(); initSheets(); initSteppers(); initFormatter(); initFormatBuilder(); initXlookupExplorer(); initRefShifter();
+    initFormulaBlocks(); initSheets(); initSteppers(); initFormatter(); initXlookupExplorer(); initRefShifter();
     initSearch(); initNav(); initTheme(); initAZ(); initPrint();
   });
 })();
