@@ -151,8 +151,10 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 16px); }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+/* No global smooth scrolling: an anchor jump across the whole guide would scroll the
+   reader through every section in between. Short hops opt into smooth in JS instead. */
+html { scroll-padding-top: calc(var(--header-h) + 16px); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 body {
   margin: 0;
   background: var(--paper);
@@ -268,8 +270,6 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 .nav .sub a { font-size: .82rem; padding: 4px 8px; font-weight: 500; color: var(--ink-3); }
 .nav .sub a.active { color: var(--brand-deep); background: transparent; font-weight: 700; }
 .nav > li.open .sub { display: block; }
-body.searching .nav > li.hit .sub { display: block; }
-body.searching .nav a:not(.dim) { cursor: pointer; }
 .sidebar .foot { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .78rem; color: var(--ink-3); line-height: 1.5; }
 
 .main { flex: 1; min-width: 0; padding: 32px 40px 80px; }
@@ -3033,12 +3033,11 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       const hero = $('.hero'); if (hero) hero.classList.toggle('dim', !has(hero));
       // The sidebar doubles as a results map: per-section counts, and chapters with
       // hits expand so their subsections are reachable without leaving the search.
-      navTargets.forEach(({ a, t, li, isSec }) => {
+      navTargets.forEach(({ a, t, isSec }) => {
         if (!isSec) { a.classList.remove('dim'); count(a, 0); return; }
         const n = t.querySelectorAll('.sr').length;
         a.classList.toggle('dim', n === 0);
         count(a, n);
-        if (t.classList.contains('chapter')) li.classList.toggle('hit', n > 0);
       });
     }
     function count(a, n) {
@@ -3079,8 +3078,9 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       const m = marks[cur];
       m.classList.add('cur');
       const d = m.closest('details'); if (d) d.open = true;
-      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      m.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'auto' });
+      // Jump, never animate: like find-in-page. Scrolling smoothly across the guide
+      // drags the reader through every section in between.
+      m.scrollIntoView({ block: 'center', behavior: 'instant' });
       closeNav();
       setStatus();
     }
@@ -3093,7 +3093,6 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
       if (!q) {
         document.body.classList.remove('searching');
         $$('.dim').forEach(x => x.classList.remove('dim'));
-        $$('.nav li.hit').forEach(x => x.classList.remove('hit'));
         navTargets.forEach(({ a }) => { count(a, 0); a.classList.remove('active'); });
         status.textContent = ''; where.textContent = ''; navBar.hidden = true; findBar.hidden = true;
         return;
@@ -3107,8 +3106,14 @@ h4.sr.kw.cur code { background: rgba(255, 255, 255, .18); border-color: rgba(255
     }
     // While searching, a sidebar link jumps to the first match inside that section
     // instead of just scrolling to its heading.
-    navTargets.forEach(({ a, t }) => a.addEventListener('click', e => {
+    navTargets.forEach(({ a, t, li }) => a.addEventListener('click', e => {
       if (!document.body.classList.contains('searching')) return;
+      // Clicking a chapter opens its subsections so the matches inside are reachable;
+      // nothing expands on its own just because a search found something there.
+      if (t.classList.contains('chapter')) {
+        $$('.nav > li.open').forEach(x => { if (x !== li) x.classList.remove('open'); });
+        li.classList.add('open');
+      }
       const first = t.querySelector('.sr');
       if (!first) return;
       const i = marks.indexOf(first);
