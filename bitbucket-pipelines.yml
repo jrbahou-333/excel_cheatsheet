@@ -1,0 +1,19 @@
+# Deploys the handbook to Cloudflare Pages on every push to main.
+# Cloudflare Pages cannot connect to Bitbucket directly, so this uses its Direct Upload
+# route via Wrangler. Inert until Pipelines is enabled and the three repository
+# variables below exist (Repository settings → Pipelines → Repository variables):
+#   CLOUDFLARE_API_TOKEN   (secured) token with the "Cloudflare Pages: Edit" permission
+#   CLOUDFLARE_ACCOUNT_ID  from the Cloudflare dashboard sidebar
+#   CLOUDFLARE_PROJECT     the Pages project name, e.g. aether-excel-handbook
+image: node:22
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Deploy to Cloudflare Pages
+          deployment: production
+          script:
+            # Publish only the page itself, not the README, assets source or this file.
+            - mkdir -p dist && cp index.html dist/
+            - npx --yes wrangler@4 pages deploy dist --project-name="$CLOUDFLARE_PROJECT" --branch=main
