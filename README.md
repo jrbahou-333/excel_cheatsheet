@@ -6,7 +6,7 @@ Everything is in one file — `index.html` — with no build step and no depende
 
 ## Repository
 
-Lives in Bitbucket at `aetheruk/excel-cheatsheet` (migrated from GitHub, history intact).
+Lives in Bitbucket at `aetheruk/aether_excel_handbook` (OGI project), migrated from GitHub with its history intact. The original GitHub repository, `jrbahou-333/excel_cheatsheet`, is no longer updated.
 
 ## Hosting on Cloudflare Pages
 
